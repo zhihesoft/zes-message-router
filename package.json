@@ -1,8 +1,9 @@
 {
   "name": "zes-message-router",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "message router for node-express and websocket",
   "main": "./build/index.js",
+  "typings": "./dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "npx eslint src/"
