@@ -66,7 +66,7 @@ export class ExpressHost {
                 }
             } catch (ex) {
                 this.logger.error(`message process ${path} failed: ${JSON.stringify(ex)}`);
-                res.status(400);
+                res.sendStatus(400);
             }
         }
     }
