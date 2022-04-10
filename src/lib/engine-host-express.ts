@@ -55,25 +55,27 @@ export class ExpressHost {
     private processor(path: string) {
         return async (req: Request, res: Response) => {
             const args = Object.assign({}, req.query, req.body);
-            try {
-                const ret = await this.engine?.process(path, args);
-                if (ret instanceof Error) {
-                    res.status(400).send(ret.message);
-                } else if (typeof ret === "string") {
+
+            if (!this.engine) {
+                return res.status(400).send("engine is null");
+            }
+
+            this.engine.process(path, args).then(ret => {
+                if (typeof ret === "string") {
                     res.send(ret);
                 } else {
                     res.json(ret);
                 }
-            } catch (ex) {
+            }).catch(err => {
                 let errmsg = "";
-                if (ex instanceof Error) {
-                    errmsg = ex.message;
+                if (err instanceof Error) {
+                    errmsg = err.message;
                 } else {
-                    errmsg = JSON.stringify(ex);
+                    errmsg = JSON.stringify(err);
                 }
                 this.logger.error(`message process ${path} failed: ${errmsg}`);
-                res.sendStatus(400);
-            }
+                res.status(400).send(errmsg);
+            });
         }
     }
 }
