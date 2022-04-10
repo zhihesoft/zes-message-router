@@ -10,11 +10,12 @@ import { SecurityGuard } from "./security-guard";
  */
 export class ExpressHost {
     constructor(
-        messages: MessageRouter,
+        messages: MessageRouter[],
         private guard: SecurityGuard
     ) {
         this.engine = new MessageEngine(messages);
-        this.installOnRouter("", this.router, messages);
+        const message = { path: "/", token: messages };
+        this.installOnRouter("", this.router, message);
     }
 
     public readonly router = Router();
@@ -48,7 +49,7 @@ export class ExpressHost {
         } else {
             const subRouter = Router();
             router.use(routerPath, subRouter);
-            console.log(`router use ${routerPath}`)
+            this.logger.info(`router use ${routerPath}`);
             for (const item of token) {
                 this.installOnRouter(currentPath, subRouter, item);
             }

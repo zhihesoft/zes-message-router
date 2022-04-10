@@ -9,9 +9,9 @@ export const metaHttpSecurity = Symbol();
  * @param security is security, default is true
  * @returns 
  */
-export function HttpMessage(method: "GET" | "POST", security: boolean): ClassDecorator {
+export function HttpMessage(data: { method: "GET" | "POST", security: boolean }): ClassDecorator {
     return target => {
-        Reflect.defineMetadata(metaHttpMethod, method, target);
-        Reflect.defineMetadata(metaHttpSecurity, security, target);
+        Reflect.defineMetadata(metaHttpMethod, data.method, target);
+        Reflect.defineMetadata(metaHttpSecurity, data.security, target);
     };
 }

@@ -7,25 +7,30 @@ import { SampleProcess } from "./sample-processor";
 import express = require("express");
 import asset = require("assert");
 import http = require("http");
+import log4js = require("log4js");
 
-const messages: MessageRouter = {
-    path: "/",
-    token: [
-        { path: "test1", token: SampleProcess },
-        { path: "test2", token: SampleProcess },
-        {
-            path: "test3", token: [
-                { path: "test4", token: SampleProcess },
-                { path: "test5", token: SampleProcess },
-            ]
-        },
-    ]
-}
+log4js.configure({
+    appenders: { cheese: { type: "console" } },
+    categories: { default: { appenders: ["cheese"], level: "error" } }
+});
 
-const guardValue = true;
+const messages: MessageRouter[] = [
+    { path: "test1", token: SampleProcess },
+    { path: "test2", token: SampleProcess },
+    {
+        path: "test3", token: [
+            { path: "test4", token: SampleProcess },
+            { path: "test5", token: SampleProcess },
+        ]
+    },
+];
+
+const logger = log4js.getLogger("engine-host-express-test");
+
+let securityValue = true;
 
 async function guard(req: Request): Promise<boolean> {
-    return guardValue;
+    return securityValue;
 }
 
 async function request(path: string, args: any): Promise<string> {
@@ -81,6 +86,15 @@ describe("engine host of express", () => {
     it("call /test3/test4 should return 4", async () => {
         const ret = await request("/test3/test4", { count: 4 });
         asset.equal(ret, 4, `ret is ${ret} != 4`);
+    });
+    it("call /test1 should failed", async () => {
+        securityValue = false;
+        asset.rejects(request("/test1", { count: 4 }), `ret should not return`);
+    });
+    it("call /test2 should return 2", async () => {
+        securityValue = true;
+        const ret = await request("/test2", { count: 2 });
+        asset.equal(ret, 2, "ret is " + ret);
     });
     it("close", () => {
         svr.close();

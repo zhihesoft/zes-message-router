@@ -5,19 +5,16 @@ import { SampleProcess } from "./sample-processor";
 import asset = require("assert");
 
 
-const messages: MessageRouter = {
-    path: "/",
-    token: [
-        { path: "test1", token: SampleProcess },
-        { path: "test2", token: SampleProcess },
-        {
-            path: "test3", token: [
-                { path: "test4", token: SampleProcess },
-                { path: "test5", token: SampleProcess },
-            ]
-        },
-    ]
-}
+const messages: MessageRouter[] = [
+    { path: "test1", token: SampleProcess },
+    { path: "test2", token: SampleProcess },
+    {
+        path: "test3", token: [
+            { path: "test4", token: SampleProcess },
+            { path: "test5", token: SampleProcess },
+        ]
+    },
+];
 
 const engine: MessageEngine = new MessageEngine(messages);
 

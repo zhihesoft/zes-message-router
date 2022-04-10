@@ -5,9 +5,9 @@ import { isMessageProcessor, MessageProcessor, MessageRouter } from "./message-r
 export class MessageEngine {
 
     public constructor(
-        public messages: MessageRouter,
+        public messages: MessageRouter[],
     ) {
-        this.addRouter("", messages);
+        this.addRouter("", { path: "/", token: messages });
     }
 
     private handlers: Map<string, MessageProcessor> = new Map()
