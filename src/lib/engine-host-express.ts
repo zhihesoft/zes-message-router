@@ -30,8 +30,8 @@ export class ExpressHost {
 
         if (isMessageProcessor(token)) {
             const method: string = Reflect.getMetadata(metaHttpMethod, token) || "GET";
+            this.logger.debug(`router add ${currentPath}`);
             const handler = this.processor(currentPath);
-            console.log(`router use ${routerPath}`);
             switch (method) {
                 case "GET":
                     router.get(routerPath, handler);
@@ -46,7 +46,6 @@ export class ExpressHost {
         } else {
             const subRouter = Router();
             router.use(routerPath, subRouter);
-            this.logger.info(`router use ${routerPath}`);
             for (const item of token) {
                 this.installOnRouter(currentPath, subRouter, item);
             }
