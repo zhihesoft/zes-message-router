@@ -26,7 +26,8 @@ export class MessageEngine {
         const currentPath = this.joinPath(parentPath, router.path);
         if (isMessageProcessor(router.token)) {
             const handle = container.resolve(router.token);
-            const security: boolean = Reflect.getMetadata(metaSecurityMessage, router.token) || true;
+            const data = Reflect.getMetadata(metaSecurityMessage, router.token);
+            const security: boolean = data == undefined || data;
             if (!security) {
                 this.insecurityPaths.push(currentPath);
             }
