@@ -65,7 +65,13 @@ export class ExpressHost {
                     res.json(ret);
                 }
             } catch (ex) {
-                this.logger.error(`message process ${path} failed: ${JSON.stringify(ex)}`);
+                let errmsg = "";
+                if (ex instanceof Error) {
+                    errmsg = ex.message;
+                } else {
+                    errmsg = JSON.stringify(ex);
+                }
+                this.logger.error(`message process ${path} failed: ${errmsg}`);
                 res.sendStatus(400);
             }
         }
