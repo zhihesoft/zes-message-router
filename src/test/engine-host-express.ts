@@ -1,9 +1,7 @@
-import { Request } from "express";
 import "reflect-metadata";
 import { ExpressHost } from "../lib/engine-host-express";
 import { MessageRouter } from "../lib/message-router";
-import { SecurityGuard } from "../lib/security-guard";
-import { SampleProcess } from "./sample-processor";
+import { SampleProcess, SampleProcessInsecurity } from "./sample-processor";
 import express = require("express");
 import asset = require("assert");
 import http = require("http");
@@ -15,8 +13,8 @@ log4js.configure({
 });
 
 const messages: MessageRouter[] = [
-    { path: "test1", token: SampleProcess },
-    { path: "test2", token: SampleProcess },
+    { path: "test1", token: SampleProcessInsecurity },
+    { path: "test2", token: SampleProcessInsecurity },
     {
         path: "test3", token: [
             { path: "test4", token: SampleProcess },
@@ -26,12 +24,6 @@ const messages: MessageRouter[] = [
 ];
 
 const logger = log4js.getLogger("engine-host-express-test");
-
-let securityValue = true;
-
-async function guard(req: Request): Promise<boolean> {
-    return securityValue;
-}
 
 async function request(path: string, args: any): Promise<string> {
 
@@ -46,7 +38,7 @@ async function request(path: string, args: any): Promise<string> {
         const options = {
             hostname: 'localhost',
             port: 3000,
-            path: "/test" + path + "?" + ps.join("&"),
+            path: path + "?" + ps.join("&"),
             method: 'GET'
         };
         const req = http.request(options, res => {
@@ -54,6 +46,7 @@ async function request(path: string, args: any): Promise<string> {
                 if (res.statusCode != 200) {
                     reject(res.statusCode);
                 } else {
+                    logger.info("get " + d);
                     resolve(d);
                 }
             });
@@ -67,12 +60,14 @@ async function request(path: string, args: any): Promise<string> {
 
 }
 
-const expressHost = new ExpressHost(messages, <SecurityGuard>guard);
+const expressHost = new ExpressHost(messages);
 
 
 const app = express();
-app.use("/hello", (req, res) => res.send("hello world"));
-app.use("/test", expressHost.router);
+app.use("/", expressHost.router);
+app.use((req, res) => {
+    res.sendStatus(404);
+});
 const svr = app.listen(3000);
 
 describe("engine host of express", () => {
@@ -81,18 +76,16 @@ describe("engine host of express", () => {
         asset.equal(ret, 1, "ret is " + ret);
     });
     it("call test1 should return error", async () => {
-        await asset.rejects(request("test1", { count: 2 }));
+        asset.rejects(request("test1", { count: 2 }));
     });
     it("call /test3/test4 should return 4", async () => {
         const ret = await request("/test3/test4", { count: 4 });
         asset.equal(ret, 4, `ret is ${ret} != 4`);
     });
     it("call /test1 should failed", async () => {
-        securityValue = false;
         asset.rejects(request("/test1", { count: 4 }), `ret should not return`);
     });
     it("call /test2 should return 2", async () => {
-        securityValue = true;
         const ret = await request("/test2", { count: 2 });
         asset.equal(ret, 2, "ret is " + ret);
     });

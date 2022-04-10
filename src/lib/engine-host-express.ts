@@ -1,17 +1,15 @@
 import { Request, Response, Router } from "express";
 import { getLogger } from "log4js";
-import { metaHttpMethod, metaHttpSecurity } from "./decorators";
+import { metaHttpMethod } from "./decorators";
 import { MessageEngine } from "./message-engine";
 import { isMessageProcessor, MessageRouter } from "./message-router";
-import { SecurityGuard } from "./security-guard";
 
 /**
  * Engine for express
  */
 export class ExpressHost {
     constructor(
-        messages: MessageRouter[],
-        private guard: SecurityGuard
+        messages: MessageRouter[]
     ) {
         this.engine = new MessageEngine(messages);
         const message = { path: "/", token: messages };
@@ -32,8 +30,7 @@ export class ExpressHost {
 
         if (isMessageProcessor(token)) {
             const method: string = Reflect.getMetadata(metaHttpMethod, token) || "GET";
-            const security: boolean = Reflect.getMetadata(metaHttpSecurity, token) || true;
-            const handler = this.processor(currentPath, security);
+            const handler = this.processor(currentPath);
             console.log(`router use ${routerPath}`);
             switch (method) {
                 case "GET":
@@ -56,20 +53,8 @@ export class ExpressHost {
         }
     }
 
-    private processor(path: string, security: boolean) {
+    private processor(path: string) {
         return async (req: Request, res: Response) => {
-            if (security) {
-                if (this.guard != null) {
-                    const guard = await this.guard(req)
-                    if (!guard) {
-                        return res.sendStatus(401);
-                    }
-                } else {
-                    this.logger.error(`cannot find security guard`);
-                    return res.sendStatus(401);
-                }
-            }
-
             const args = Object.assign({}, req.query, req.body);
             try {
                 const ret = await this.engine?.process(path, args);

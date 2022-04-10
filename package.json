@@ -1,6 +1,6 @@
 {
   "name": "zes-message-router",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "message router for node-express and websocket",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
@@ -25,6 +25,7 @@
   "homepage": "https://github.com/zhihesoft/zes-message-router#readme",
   "dependencies": {
     "express": "^4.17.3",
+    "express-jwt": "^6.1.1",
     "log4js": "^6.4.4",
     "reflect-metadata": "^0.1.13",
     "tsyringe": "^4.6.0"
