@@ -17,7 +17,7 @@ export class ExpressHost {
     }
 
     public readonly router = Router();
-    private readonly engine: MessageEngine;
+    public readonly engine: MessageEngine;
     private readonly logger = getLogger(ExpressHost.name);
 
     private installOnRouter(parentPath: string, router: Router, message: MessageRouter) {
