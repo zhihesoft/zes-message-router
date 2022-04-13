@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import "reflect-metadata";
 import { ExpressHost } from "../lib/engine-host-express";
 import { MessageRouter } from "../lib/message-router";

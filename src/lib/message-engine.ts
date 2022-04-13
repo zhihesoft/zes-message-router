@@ -1,5 +1,5 @@
 import { getLogger, Logger } from "log4js";
-import { container } from "tsyringe";
+import { container, InjectionToken } from "tsyringe";
 import { metaSecurityMessage } from "./decorators";
 import { isMessageProcessor, MessageProcessor, MessageRouter } from "./message-router";
 
@@ -21,6 +21,7 @@ export class MessageEngine {
     private handlers: Map<string, MessageProcessor> = new Map()
     private logger: Logger = getLogger(MessageEngine.name);
     private insecurityPaths: string[] = [];
+    private tokens: Map<string, InjectionToken<MessageProcessor>> = new Map();
 
     private addRouter(parentPath: string, router: MessageRouter) {
         const currentPath = this.joinPath(parentPath, router.path);
@@ -31,6 +32,7 @@ export class MessageEngine {
             if (!security) {
                 this.insecurityPaths.push(currentPath);
             }
+            this.tokens.set(currentPath, router.token);
             this.handlers.set(currentPath, handle);
         } else {
             for (const item of router.token) {
@@ -57,6 +59,15 @@ export class MessageEngine {
             ret.push(item[0]);
         }
         return ret;
+    }
+
+    /**
+     * get token
+     * @param message message
+     * @returns 
+     */
+    public getToken(message: string) {
+        return this.tokens.get(message);
     }
 
     /**
