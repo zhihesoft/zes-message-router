@@ -1,24 +1,19 @@
 import "reflect-metadata";
+import { InjectionToken } from "tsyringe";
 import { MessageEngine } from "../lib/message-engine";
-import { MessageRouter } from "../lib/message-router";
-import { SampleProcess } from "./sample-processor";
+import { MessageProcessor } from "../lib/message-processor";
+import { SampleProcess, SampleProcessInsecurity } from "./sample-processor";
 import asset = require("assert");
 import log4js = require("log4js");
 
-log4js.configure({
-    appenders: { cheese: { type: "console" } },
-    categories: { default: { appenders: ["cheese"], level: "error" } }
-});
+// log4js.configure({
+//     appenders: { cheese: { type: "console" } },
+//     categories: { default: { appenders: ["cheese"], level: "error" } }
+// });
 
-const messages: MessageRouter[] = [
-    { path: "test1", token: SampleProcess },
-    { path: "test2", token: SampleProcess },
-    {
-        path: "test3", token: [
-            { path: "test4", token: SampleProcess },
-            { path: "test5", token: SampleProcess },
-        ]
-    },
+const messages: InjectionToken<MessageProcessor>[] = [
+    SampleProcess,
+    SampleProcessInsecurity
 ];
 
 const engine: MessageEngine = new MessageEngine(messages);
@@ -27,10 +22,10 @@ for (const item of engine.getAllPaths()) {
 }
 
 describe("message-engine", () => {
-    it("engine should have 4 message processors", () => {
+    it("engine should have 2 message processors", () => {
         asset.notEqual(engine, null);
         const handles = engine.getAllPaths();
-        asset.equal(handles?.length, 4);
+        asset.equal(handles?.length, 2);
     });
     it("call /test1 should return 1", async () => {
         asset.notEqual(engine, null);

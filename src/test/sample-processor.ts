@@ -1,20 +1,18 @@
-import { httpMethod, security } from "../lib/decorators";
-import { MessageProcessor } from "../lib/message-router";
+import { message } from "../lib/decorators";
+import { MessageProcessor } from "../lib/message-processor";
 
-@httpMethod("GET")
-@security(true)
+@message("/test1", { security: true })
 export class SampleProcess implements MessageProcessor {
-    async process(args: { count: number }): Promise<number> {
+    async process(count: number): Promise<number> {
         // console.log("hello world: " + JSON.stringify(args));
-        return args.count;
+        return count;
     }
 }
 
-@httpMethod("GET")
-@security(false)
+@message("/test3/test4", { security: false })
 export class SampleProcessInsecurity implements MessageProcessor {
-    async process(args: { count: number }): Promise<number> {
+    async process(count: number): Promise<number> {
         // console.log("hello world: " + JSON.stringify(args));
-        return args.count;
+        return count;
     }
 }

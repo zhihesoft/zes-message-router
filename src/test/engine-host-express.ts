@@ -1,27 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import "reflect-metadata";
+import { InjectionToken } from "tsyringe";
 import { ExpressHost } from "../lib/engine-host-express";
-import { MessageRouter } from "../lib/message-router";
+import { MessageProcessor } from "../lib/message-processor";
 import { SampleProcess, SampleProcessInsecurity } from "./sample-processor";
 import express = require("express");
 import asset = require("assert");
 import http = require("http");
 import log4js = require("log4js");
 
-log4js.configure({
-    appenders: { cheese: { type: "console" } },
-    categories: { default: { appenders: ["cheese"], level: "error" } }
-});
+// log4js.configure({
+//     appenders: { cheese: { type: "console" } },
+//     categories: { default: { appenders: ["cheese"], level: "error" } }
+// });
 
-const messages: MessageRouter[] = [
-    { path: "test1", token: SampleProcessInsecurity },
-    { path: "test2", token: SampleProcessInsecurity },
-    {
-        path: "test3", token: [
-            { path: "test4", token: SampleProcess },
-            { path: "test5", token: SampleProcess },
-        ]
-    },
+const messages: InjectionToken<MessageProcessor>[] = [
+    SampleProcess,
+    SampleProcessInsecurity,
 ];
 
 const logger = log4js.getLogger("engine-host-express-test");
@@ -83,12 +78,8 @@ describe("engine host of express", () => {
         const ret = await request("/test3/test4", { count: 4 });
         asset.equal(ret, 4, `ret is ${ret} != 4`);
     });
-    it("call /test1 should failed", async () => {
-        asset.rejects(request("/test1", { count: 4 }), `ret should not return`);
-    });
-    it("call /test2 should return 2", async () => {
-        const ret = await request("/test2", { count: 2 });
-        asset.equal(ret, 2, "ret is " + ret);
+    it("call /test1/test2 should failed", async () => {
+        asset.rejects(request("/test1/test2", { count: 4 }), `ret should not return`);
     });
     it("close", () => {
         svr.close();

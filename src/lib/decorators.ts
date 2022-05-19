@@ -1,16 +1,19 @@
 import "reflect-metadata";
 
-export const metaHttpMethod = Symbol();
-export const metaSecurityMessage = Symbol();
+export const metaOfProcessor = Symbol("meta-processor");
 
-export function security(value: boolean): ClassDecorator {
-    return target => {
-        Reflect.defineMetadata(metaSecurityMessage, value, target);
-    };
+export interface MessageProcessorMeta {
+    path: string;
+    option?: ProcessorOption;
 }
 
-export function httpMethod(method: "GET" | "POST"): ClassDecorator {
+export interface ProcessorOption {
+    verb?: "GET" | "POST" | "ANY";
+    security?: boolean;
+}
+
+export function message(path: string, option?: ProcessorOption): ClassDecorator {
     return target => {
-        Reflect.defineMetadata(metaHttpMethod, method, target);
-    };
+        Reflect.defineMetadata(metaOfProcessor, { path, option }, target);
+    }
 }
