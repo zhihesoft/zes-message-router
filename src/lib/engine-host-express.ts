@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response, Router } from "express";
 import { getLogger } from "log4js";
 import { InjectionToken } from "tsyringe";
@@ -30,6 +31,7 @@ export class ExpressHost {
     private process(path: string): (req: Request, resp: Response) => void {
         return async (req, resp) => {
             const args = Object.assign({}, req.query, req.body);
+            args["auth"] = (<any>req).auth;
             try {
                 const ret = await this.engine.process(path, args);
                 if (typeof ret === "string") {
