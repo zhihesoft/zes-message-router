@@ -6,7 +6,7 @@ import { MessageProcessorMeta, metaOfProcessor } from "./decorators";
 import { MessageProcessor } from "./message-processor";
 
 export interface ArgumentProvider {
-    (): unknown;
+    (args: unknown): unknown;
 }
 
 /**
@@ -96,7 +96,7 @@ export class MessageEngine {
         if (this.argumentProviders.has(name)) {
             const fun = this.argumentProviders.get(name);
             if (fun) {
-                return fun();
+                return fun(args);
             }
         }
         return undefined;
